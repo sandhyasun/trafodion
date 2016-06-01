@@ -34,7 +34,7 @@ using std::ofstream;
 #include "ExpLOBinterface.h"
 
 
-Lng32 ExpLOBinterfaceInit(void *& lobGlob, void * lobHeap,NABoolean isHive, Int64  lobMaxSize)
+Lng32 ExpLOBinterfaceInit(void *& exLobGlob, void * lobHeap,NABoolean isHive, Int64  lobMaxSize)
 {
   Ex_Lob_Error err;
 
@@ -55,17 +55,17 @@ Lng32 ExpLOBinterfaceInit(void *& lobGlob, void * lobHeap,NABoolean isHive, Int6
 		   Lob_Init,
 		   Lob_None,
                    1, // waited op
-		   lobGlob,
+		   exLobGlob,
 		   0,
-		   lobGlob, 0,
+		   exLobGlob, 0,
 		   lobMaxSize);
-  if (lobGlob)
+  if (exLobGlob)
     {
-      ((ExLobGlobals *)lobGlob)->setIsHive(isHive);
+      ((ExLobGlobals *)exLobGlob)->setIsHive(isHive);
       NAHeap *heap = new ((NAHeap *)lobHeap) NAHeap("LOB Heap", (NAHeap *)lobHeap);
       
       heap->setThreadSafe();
-      ((ExLobGlobals *)lobGlob)->setHeap(heap);
+      ((ExLobGlobals *)exLobGlob)->setHeap(heap);
       
     }
     
@@ -76,7 +76,7 @@ Lng32 ExpLOBinterfaceInit(void *& lobGlob, void * lobHeap,NABoolean isHive, Int6
     return 0;
 }
 
-Lng32 ExpLOBinterfacePerformGC(void *& lobGlob, char *lobName,void *descChunksArray, Int32 numEntries, char *hdfsServer, Int32 hdfsPort,char *lobLoc,Int64 lobMaxChunkMemSize)
+Lng32 ExpLOBinterfacePerformGC(void *& exLobGlob, char *lobName,void *descChunksArray, Int32 numEntries, char *hdfsServer, Int32 hdfsPort,char *lobLoc,Int64 lobMaxChunkMemSize)
 {
   Ex_Lob_Error err;
   Ex_Lob_Error status;
@@ -94,7 +94,7 @@ Lng32 ExpLOBinterfacePerformGC(void *& lobGlob, char *lobName,void *descChunksAr
 		   Lob_PerformGC, // Lob_GC
 		   Lob_None,
                    1, // waited op
-		   lobGlob,
+		   exLobGlob,
 		   0,
 		   NULL, 0
 		   );
@@ -104,7 +104,7 @@ Lng32 ExpLOBinterfacePerformGC(void *& lobGlob, char *lobName,void *descChunksAr
     return 0;
 }
 
-Lng32 ExpLOBinterfaceRestoreLobDataFile(void *& lobGlob, char *hdfsServer, Int32 hdfsPort,char *lobLoc,char *lobName)
+Lng32 ExpLOBinterfaceRestoreLobDataFile(void *& exLobGlob, char *hdfsServer, Int32 hdfsPort,char *lobLoc,char *lobName)
 {
   Ex_Lob_Error err;
   Ex_Lob_Error status;
@@ -122,7 +122,7 @@ Lng32 ExpLOBinterfaceRestoreLobDataFile(void *& lobGlob, char *hdfsServer, Int32
 		   Lob_RestoreLobDataFile, // Lob_GC
 		   Lob_None,
                    1, // waited op
-		   lobGlob,
+		   exLobGlob,
 		   0,
 		   NULL, 0
 		   );
@@ -131,7 +131,7 @@ Lng32 ExpLOBinterfaceRestoreLobDataFile(void *& lobGlob, char *hdfsServer, Int32
   else
     return 0;
 }
-Lng32 ExpLOBinterfacePurgeBackupLobDataFile(void *& lobGlob, char *hdfsServer, Int32 hdfsPort,char *lobLoc,char *lobName)
+Lng32 ExpLOBinterfacePurgeBackupLobDataFile(void *& exLobGlob, char *hdfsServer, Int32 hdfsPort,char *lobLoc,char *lobName)
 {
   Ex_Lob_Error err;
   Ex_Lob_Error status;
@@ -149,7 +149,7 @@ Lng32 ExpLOBinterfacePurgeBackupLobDataFile(void *& lobGlob, char *hdfsServer, I
 		   Lob_PurgeBackupLobDataFile, // Lob_GC
 		   Lob_None,
                    1, // waited op
-		   lobGlob,
+		   exLobGlob,
 		   0,
 		   NULL, 0
 		   );
@@ -158,7 +158,7 @@ Lng32 ExpLOBinterfacePurgeBackupLobDataFile(void *& lobGlob, char *hdfsServer, I
   else
     return 0;
 }
-Lng32 ExpLOBinterfaceCleanup(void *& lobGlob, void * lobHeap)
+Lng32 ExpLOBinterfaceCleanup(void *& exLobGlob, void * lobHeap)
 {
   Ex_Lob_Error err;
   Ex_Lob_Error status;
@@ -176,7 +176,7 @@ Lng32 ExpLOBinterfaceCleanup(void *& lobGlob, void * lobHeap)
 		   Lob_Cleanup, // Lob_Cleanup
 		   Lob_None,
                    1, // waited op
-		   lobGlob,
+		   exLobGlob,
 		   0,
 		   lobHeap, 0
 		   );
@@ -187,7 +187,7 @@ Lng32 ExpLOBinterfaceCleanup(void *& lobGlob, void * lobHeap)
 }
 
 Lng32 ExpLOBinterfaceCreate(
-			    void * lobGlob, char * lobName, char * lobLoc,
+			    void * exLobGlob, char * lobName, char * lobLoc,
 			    Lng32 lobType,
 			    char * lobHdfsServer,
 			    Int64 lobMaxSize,
@@ -214,7 +214,7 @@ Lng32 ExpLOBinterfaceCreate(
 		   Lob_Create,
 		   Lob_None,
                    1, // waited op
-		   lobGlob,
+		   exLobGlob,
 		   0, NULL, 0,
 		   lobMaxSize,
                    bufferSize ,
@@ -231,7 +231,7 @@ Lng32 ExpLOBinterfaceCreate(
 // Return: 1, if check fails. 
 //         0, if check passes. 
 //         -LOB_*_ERROR, if error.
-Lng32 ExpLOBinterfaceDataModCheck(void * lobGlob,
+Lng32 ExpLOBinterfaceDataModCheck(void * exLobGlob,
                                   char * dirPath,
                                   char * lobHdfsServer,
                                   Lng32  lobHdfsPort,
@@ -260,7 +260,7 @@ Lng32 ExpLOBinterfaceDataModCheck(void * lobGlob,
                    Lob_Data_Mod_Check,
                    Lob_None,
                    1, // waited op
-                   lobGlob,
+                   exLobGlob,
                    0, 
                    dirInfoBuf, dirInfoBufLen
                    );
@@ -274,7 +274,7 @@ Lng32 ExpLOBinterfaceDataModCheck(void * lobGlob,
 }
 
 Lng32 ExpLOBinterfaceEmptyDirectory(
-                            void * lobGlob,
+                            void * exLobGlob,
                             char * lobName,
                             char * lobLoc,
                             Lng32 lobType,
@@ -302,7 +302,7 @@ Lng32 ExpLOBinterfaceEmptyDirectory(
                    Lob_Empty_Directory,
                    Lob_None,
                    1, // waited op
-                   lobGlob,
+                   exLobGlob,
                    0, NULL, 0,
                    bufferSize ,
                    replication,
@@ -314,7 +314,7 @@ Lng32 ExpLOBinterfaceEmptyDirectory(
   else
     return 0;
 }
-Lng32 ExpLOBinterfaceDrop(void * lobGlob,  char * lobHdfsServer ,
+Lng32 ExpLOBinterfaceDrop(void * exLobGlob,  char * lobHdfsServer ,
 			  Lng32 lobHdfsPort,char * lobName, char * lobLoc)
 {
   Ex_Lob_Error err;
@@ -335,7 +335,7 @@ Lng32 ExpLOBinterfaceDrop(void * lobGlob,  char * lobHdfsServer ,
 		   Lob_Drop,
 		   Lob_None,
                    1, // waited op
-		   lobGlob, 
+		   exLobGlob, 
 		   0, NULL, 0
 		   );
 
@@ -345,7 +345,7 @@ Lng32 ExpLOBinterfaceDrop(void * lobGlob,  char * lobHdfsServer ,
     return 0;
 }
 
-Lng32 ExpLOBInterfacePurgedata(void * lobGlob,  
+Lng32 ExpLOBInterfacePurgedata(void * exLobGlob,  
 			       char * lobName, char * lobLoc)
 {
   Ex_Lob_Error err;
@@ -367,7 +367,7 @@ Lng32 ExpLOBInterfacePurgedata(void * lobGlob,
 		   Lob_Purge,
 		   Lob_None,
                    1, // waited
-                   lobGlob,
+                   exLobGlob,
 		   0, NULL, 0
 		   );
 
@@ -377,7 +377,7 @@ Lng32 ExpLOBInterfacePurgedata(void * lobGlob,
     return LOB_ACCESS_SUCCESS;
 }
 
-Lng32 ExpLOBinterfaceCloseFile(void * lobGlob, 
+Lng32 ExpLOBinterfaceCloseFile(void * exLobGlob, 
 			       char * lobName,
 			       char * lobLoc,
 			       Lng32 lobType,
@@ -405,7 +405,7 @@ Lng32 ExpLOBinterfaceCloseFile(void * lobGlob,
 		  
 		   Lob_None,
                    1, // waited
-                   lobGlob,
+                   exLobGlob,
 		   0, NULL, 0
 		   );
 
@@ -416,7 +416,7 @@ Lng32 ExpLOBinterfaceCloseFile(void * lobGlob,
 }
 
 
-Lng32 ExpLOBInterfaceInsert(void * lobGlob, 
+Lng32 ExpLOBInterfaceInsert(void * exLobGlob, 
 			    char * tgtLobName,
 			    char * lobStorageLocation,
 			    Lng32 lobType,
@@ -485,7 +485,7 @@ Lng32 ExpLOBInterfaceInsert(void * lobGlob,
 		   lo, 
 		   so,
                    waitedOp,
-		   lobGlob,
+		   exLobGlob,
 		   xnId, 
 		   blackBox, blackBoxLen,
 		   lobMaxSize,
@@ -513,7 +513,7 @@ Lng32 ExpLOBInterfaceInsert(void * lobGlob,
   return 0;
 }
 
-Lng32 ExpLOBInterfaceInsertSelect(void * lobGlob, 
+Lng32 ExpLOBInterfaceInsertSelect(void * exLobGlob, 
 				  char * lobHdfsServer ,
 				  Lng32 lobHdfsPort ,
 				  char * tgtLobName,
@@ -553,7 +553,7 @@ Lng32 ExpLOBInterfaceInsertSelect(void * lobGlob,
 		   Lob_Insert,
 		   lso,
                    1, 
-		   lobGlob,
+		   exLobGlob,
 		   0, NULL, 0
 		   );
 
@@ -563,7 +563,7 @@ Lng32 ExpLOBInterfaceInsertSelect(void * lobGlob,
   return 0;
 }
 
-Lng32 ExpLOBInterfaceUpdateAppend(void * lobGlob, 
+Lng32 ExpLOBInterfaceUpdateAppend(void * exLobGlob, 
 				  char * lobHdfsServer ,
 				  Lng32 lobHdfsPort ,
 				  char * tgtLobName,
@@ -615,7 +615,7 @@ Lng32 ExpLOBInterfaceUpdateAppend(void * lobGlob,
                    Lob_Append,
                    so,
                    1, 
-                   lobGlob,
+                   exLobGlob,
                    xnId, NULL, 0,
 		   lobMaxSize,
 		   lobMaxChunkMemSize,
@@ -633,7 +633,7 @@ Lng32 ExpLOBInterfaceUpdateAppend(void * lobGlob,
   return 0;
 }
 
-Lng32 ExpLOBInterfaceUpdate(void * lobGlob, 
+Lng32 ExpLOBInterfaceUpdate(void * exLobGlob, 
 			    char * lobHdfsServer ,
 			    Lng32 lobHdfsPort,
 
@@ -686,7 +686,7 @@ Lng32 ExpLOBInterfaceUpdate(void * lobGlob,
                    Lob_Update,
                    so,
                    1, 
-                   lobGlob,
+                   exLobGlob,
                    xnId, 
 		   NULL, 0,
 		   lobMaxSize,
@@ -706,7 +706,7 @@ Lng32 ExpLOBInterfaceUpdate(void * lobGlob,
   return 0;
 }
 
-Lng32 ExpLOBInterfaceDelete(void * lobGlob, 
+Lng32 ExpLOBInterfaceDelete(void * exLobGlob, 
 			    char * lobHdfsServer ,
 			    Lng32 lobHdfsPort ,
 			    char * lobName,
@@ -749,7 +749,7 @@ Lng32 ExpLOBInterfaceDelete(void * lobGlob,
 		   lo,
 		   Lob_None,
                    waitedOp, 
-		   lobGlob,
+		   exLobGlob,
 		   xnId, 
 		   NULL, 0
 		   );
@@ -765,7 +765,7 @@ Lng32 ExpLOBInterfaceDelete(void * lobGlob,
 
 }
 
-Lng32 ExpLOBInterfaceSelect(void * lobGlob, 
+Lng32 ExpLOBInterfaceSelect(void * exLobGlob, 
 			    char * lobName, 
 			    char * lobLoc,
 			    Lng32 lobType,
@@ -821,7 +821,7 @@ Lng32 ExpLOBInterfaceSelect(void * lobGlob,
 		   lo,
 		   so,
                    waitedOp, 
-		   lobGlob,
+		   exLobGlob,
 		   xnId, 
 		   NULL, 0,
 		   0,
@@ -842,7 +842,7 @@ Lng32 ExpLOBInterfaceSelect(void * lobGlob,
   return 0;
 }
 
-Lng32 ExpLOBInterfaceSelectCursor(void * lobGlob, 
+Lng32 ExpLOBInterfaceSelectCursor(void * exLobGlob, 
 				  char * lobName, 
 				  char * lobLoc,
 				  Lng32 lobType,
@@ -920,7 +920,7 @@ Lng32 ExpLOBInterfaceSelectCursor(void * lobGlob,
 		   lo,
 		   so,
                    waitedOp,
-		   lobGlob,
+		   exLobGlob,
 		   0,
 		   NULL, 0,0,0,0,0,0,0,
                    openType
@@ -935,7 +935,7 @@ Lng32 ExpLOBInterfaceSelectCursor(void * lobGlob,
 }
 
 Lng32 ExpLOBinterfaceStats(
-			    void * lobGlob, 
+			    void * exLobGlob, 
 			    ExLobStats * lobStats,
 			    char * lobName, char * lobLoc,
 			    Lng32 lobType,
@@ -960,7 +960,7 @@ Lng32 ExpLOBinterfaceStats(
 		   Lob_Stats,
 		   Lob_None,
                    1, // waited op
-		   lobGlob,
+		   exLobGlob,
 		   0, NULL, 0
 		   );
 
